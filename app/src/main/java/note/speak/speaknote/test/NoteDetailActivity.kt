@@ -6,7 +6,7 @@ import android.util.Log
 import android.view.View
 import com.nuance.speechkit.Recognition
 import com.nuance.speechkit.TransactionException
-import kotlinx.android.synthetic.main.activity_note_add.*
+import kotlinx.android.synthetic.main.activity_note_detail.*
 import note.speak.speaknote.R
 import note.speak.speaknote.RecordState
 import note.speak.speaknote.base.BaseRecordActivity
@@ -14,10 +14,14 @@ import note.speak.speaknote.db.Note
 import note.speak.speaknote.util.Date.getCurrentDay
 import note.speak.speaknote.util.Date.getCurrentTime
 
-class NoteAddActivity : BaseRecordActivity(), View.OnClickListener {
+class NoteDetailActivity : BaseRecordActivity(), View.OnClickListener {
+
+    private var noteId: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        noteId = intent.getLongExtra("noteId", -1)
 
         initViews()
 
@@ -32,19 +36,23 @@ class NoteAddActivity : BaseRecordActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v) {
             btnRecord -> toggleReco()
-            btnUpdateNote -> addNote()
+            btnUpdateNote -> updateNote()
         }
     }
 
-    private fun addNote() {
+    private fun updateNote() {
 
         val note = Note()
         note.title = tvSpeak.text.toString()
-        note.content = "addnote content"
+        note.content = tvContent.text.toString()
         note.time = getCurrentTime()
         note.day = getCurrentDay()
-        note.save()
-        startActivity(Intent(this,NoteListActivity::class.java))
+        when (noteId) {
+            -1L -> note.save()
+            else -> note.update(noteId!!)
+        }
+
+        startActivity(Intent(this, NoteListActivity::class.java))
     }
 
     private fun toggleReco() {
@@ -56,7 +64,7 @@ class NoteAddActivity : BaseRecordActivity(), View.OnClickListener {
     }
 
     override fun getContentView(): Int {
-        return R.layout.activity_note_add
+        return R.layout.activity_note_detail
     }
 
     override fun onStartRecording() {

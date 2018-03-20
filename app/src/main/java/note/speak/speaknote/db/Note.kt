@@ -7,7 +7,7 @@ import org.litepal.crud.DataSupport
  */
 public class Note : DataSupport() {
 
-    val id: Int = 0
+    val id: Long = 0
     var day: String? = null
     var time: String? = null
     var title: String? = null

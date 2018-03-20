@@ -12,6 +12,7 @@ import note.speak.speaknote.R
 import note.speak.speaknote.db.Note
 import org.jetbrains.anko.toast
 import org.litepal.crud.DataSupport
+import org.litepal.crud.callback.FindMultiCallback
 
 class NoteListActivity : AppCompatActivity() {
 
@@ -30,7 +31,16 @@ class NoteListActivity : AppCompatActivity() {
 
     private fun requestLocalNotes() {
 
-        noteList = DataSupport.findAll(Note::class.java)
+//        DataSupport.findAllAsync<Note>(Note::class.java).listen(object : FindMultiCallback {
+//            override fun <T> onFinish(t: List<T>) {
+//                val allSongs = t as List<Note>
+//                noteList = allSongs.asReversed()
+//                noteAdapter = MultiTypeAdapter(noteList)
+//                noteAdapter!!.notifyDataSetChanged()
+//            }
+//        })
+
+        noteList = DataSupport.findAll(Note::class.java).asReversed()
 
     }
 
@@ -38,14 +48,14 @@ class NoteListActivity : AppCompatActivity() {
 
         initRecyclerView();
 
-        //floatingbutton
         initFloatButton();
     }
 
     private fun initFloatButton() {
 
         btnFloat.setOnClickListener {
-            startActivity(Intent(this,NoteAddActivity::class.java))
+            startActivity(Intent(this, NoteAddActivity::class.java))
+            this.finish()
         }
 
     }
@@ -58,7 +68,7 @@ class NoteListActivity : AppCompatActivity() {
     }
 
     private fun initAdapter(noteAdapter: MultiTypeAdapter) {
-        noteAdapter.register(Note::class.java, NoteViewBinder())
+        noteAdapter.register(Note::class.java, NoteViewBinder(this))
         rvNote.adapter = noteAdapter
     }
 
